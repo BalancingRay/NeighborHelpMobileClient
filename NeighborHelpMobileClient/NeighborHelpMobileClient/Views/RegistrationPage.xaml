@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="NeighborHelpMobileClient.Views.RegistrationPage"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="10,0,10,0" VerticalOptions="Center">
+                <Label Text="{Binding ErrorText, Mode=TwoWay}" TextColor="Tomato"/>
+                <Label Text="Login"/>
+                <Entry Text="{Binding Login, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Password"/>
+                <Entry Text="{Binding Password, Mode=TwoWay}" FontSize="Medium"/>
+                <Label Text="Confirm Password"/>
+                <Entry Text="{Binding ConfirmedPassword, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="User name"/>
+                <Entry Text="{Binding UserName, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Your profile data:" FontSize="Medium"/>
+                <Label Text="Name"/>
+                <Entry Text="{Binding ProfileName, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Address"/>
+                <Entry Text="{Binding ProfileAddress, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Phone number"/>
+                <Entry Text="{Binding ProfilePhoneNumber, Mode=TwoWay}" FontSize="Medium" />
+                <Button VerticalOptions="Center" Text="Registration" Command="{Binding RegistrationCommand}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
