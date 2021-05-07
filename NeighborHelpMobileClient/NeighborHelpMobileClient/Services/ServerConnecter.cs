@@ -25,7 +25,7 @@ namespace NeighborHelpMobileClient.Services
 
         private string HostAddress => ConnectionProvider.GetServerUrl();
 
-        private string AuthorizationToken => ConnectionProvider.GetToken();
+        private string AuthorizationToken => ConnectionProvider.GetToken()?.Token;
 
         public async Task<string> Get(string request, bool useToken=false)
         {

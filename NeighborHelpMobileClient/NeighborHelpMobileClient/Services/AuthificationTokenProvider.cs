@@ -1,11 +1,12 @@
 ﻿using NeighborHelpMobileClient.Properties;
 using NeighborHelpMobileClient.Services.Contracts;
+using NeighborHelpModels.ControllersModel;
 
 namespace NeighborHelpMobileClient.Services
 {
     public class AuthificationTokenProvider : IConnectorProvider
     {
-        private string token;
+        private AuthentificateToken token;
         private string address = DefaultSettings.LocalHostAddress;
 
         public string GetServerUrl()
@@ -13,7 +14,7 @@ namespace NeighborHelpMobileClient.Services
             return address;
         }
 
-        public string GetToken()
+        public AuthentificateToken GetToken()
         {
             return token;
         }
@@ -23,7 +24,7 @@ namespace NeighborHelpMobileClient.Services
             address = value;
         }
 
-        public void UpdateToken(string value)
+        public void UpdateToken(AuthentificateToken value)
         {
             token = value;
         }

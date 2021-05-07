@@ -24,9 +24,9 @@ namespace NeighborHelpMobileClient.Services
             var data = new AuthentificateData() { Login = login, Password = password };
             var result = await connecter.Post(PathConst.LOGIN_BY_JWT_PATH, data);
 
-            string token = JsonConvert.DeserializeObject<AuthentificateToken>(result)?.Token;
+            var token = JsonConvert.DeserializeObject<AuthentificateToken>(result);
 
-            if (!string.IsNullOrEmpty(token))
+            if (token?.Token != null)
             {  
                 DependencyService.Get<IConnectorProvider>().UpdateToken(token);
                 return true;
