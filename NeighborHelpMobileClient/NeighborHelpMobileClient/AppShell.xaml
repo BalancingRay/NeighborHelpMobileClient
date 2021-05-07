@@ -82,10 +82,6 @@
                 ContentTemplate="{DataTemplate local:LoginPage}" />
             <ShellContent 
                 Icon="icon_about.png"
-                Title="Registration"
-                ContentTemplate="{DataTemplate local:RegistrationPage}" />
-            <ShellContent 
-                Icon="icon_about.png"
                 Title="Settings"
                 Route="AboutPage" 
                 ContentTemplate="{DataTemplate local:AboutPage}" />

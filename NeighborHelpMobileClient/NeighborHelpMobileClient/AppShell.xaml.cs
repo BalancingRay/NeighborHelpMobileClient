@@ -12,6 +12,7 @@ namespace NeighborHelpMobileClient
             Routing.RegisterRoute(nameof(OrderDetailPage), typeof(OrderDetailPage));
             Routing.RegisterRoute(nameof(NewOrderPage), typeof(NewOrderPage));
             Routing.RegisterRoute(nameof(EditOrderPage), typeof(EditOrderPage));
+            Routing.RegisterRoute(nameof(RegistrationPage), typeof(RegistrationPage));
         }
     }
 }
