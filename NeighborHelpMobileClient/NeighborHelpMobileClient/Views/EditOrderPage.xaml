@@ -8,22 +8,22 @@
              ios:Page.UseSafeArea="true">
     <ContentPage.Content>
         <ScrollView>
-        <StackLayout Spacing="3" Padding="15">
-            <Label Text="Product" FontSize="Medium" />
-            <Entry Text="{Binding Product, Mode=TwoWay}" FontSize="Medium" />
-            <Label Text="Description" FontSize="Medium" />
-            <Editor Text="{Binding ProductDescription, Mode=TwoWay}" AutoSize="TextChanges" FontSize="Medium" Margin="0" />
-            <Label Text="Cost" FontSize="Medium" />
-            <Entry Text="{Binding Cost, Mode=TwoWay}" FontSize="Medium" />
-            <Label Text="Order type" FontSize="Medium" />
-            <Entry Text="{Binding OrderType, Mode=TwoWay}" FontSize="Medium" />
-            <Label Text="Order status" FontSize="Medium" />
-            <Entry Text="{Binding Status, Mode=TwoWay}" FontSize="Medium" />
-            <StackLayout Orientation="Horizontal">
-                <Button Text="Cancel" Command="{Binding CancelCommand}" HorizontalOptions="FillAndExpand"></Button>
-                <Button Text="Save" Command="{Binding SaveCommand}" HorizontalOptions="FillAndExpand"></Button>
+            <StackLayout Spacing="3" Padding="15">
+                <Label Text="Product:" FontSize="Medium" />
+                <Entry Text="{Binding Product, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Description:" FontSize="Medium" />
+                <Editor Text="{Binding ProductDescription, Mode=TwoWay}" AutoSize="TextChanges" FontSize="Medium" Margin="0" />
+                <Label Text="Cost:" FontSize="Medium" />
+                <Entry Text="{Binding Cost, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Order type:" FontSize="Medium" />
+                <Picker ItemsSource="{Binding OrderTypes}" SelectedIndex="{Binding SelectedTypeIndex, Mode=TwoWay}"/>
+                <Label Text="Order status:" FontSize="Medium" />
+                <Picker ItemsSource="{Binding OrderStatuses}" SelectedIndex="{Binding SelectedStatusIndex, Mode=TwoWay}"/>
+                <StackLayout Orientation="Horizontal">
+                    <Button Text="Cancel" Command="{Binding CancelCommand}" HorizontalOptions="FillAndExpand"></Button>
+                    <Button Text="Save" Command="{Binding SaveCommand}" HorizontalOptions="FillAndExpand"></Button>
+                </StackLayout>
             </StackLayout>
-        </StackLayout>
         </ScrollView>
     </ContentPage.Content>
 </ContentPage>

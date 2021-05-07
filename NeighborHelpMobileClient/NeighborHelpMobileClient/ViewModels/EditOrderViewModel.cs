@@ -1,7 +1,9 @@
 ﻿using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.ViewModels
@@ -9,45 +11,22 @@ namespace NeighborHelpMobileClient.ViewModels
     [QueryProperty(nameof(ItemId), nameof(ItemId))]
     public class EditOrderViewModel : BaseViewModel
     {
-        public IOrderStore OrderStore => DependencyService.Get<IOrderStore>();
+
+        #region Fields
 
         private string id;
         private string product;
         private string productDescription;
         private string cost;
-        private string orderType;
         private double doubleCost;
-        private string status;
         private int authorId;
+        private int selectedOrderTypeIndex;
+        private int selectedStatusTypeIndex;
 
-        public EditOrderViewModel()
-        {
-            SaveCommand = new Command(OnSave, ValidateSave);
-            CancelCommand = new Command(OnCancel);
-            this.PropertyChanged +=
-                (_, __) => SaveCommand.ChangeCanExecute();
-        }
+        #endregion Fields
 
-        private bool ValidateSave()
-        {
-            bool isNotEmptyFields =  !string.IsNullOrWhiteSpace(Product)
-                && !string.IsNullOrWhiteSpace(ProductDescription)
-                && !string.IsNullOrWhiteSpace(Cost)
-                && !string.IsNullOrWhiteSpace(OrderType)
-                && !string.IsNullOrWhiteSpace(id);
 
-            if(isNotEmptyFields && double.TryParse(Cost, out double result))
-            {
-                doubleCost = result;
-            }
-            else
-            {
-                return false;
-            }
-
-            return true;
-        }
-
+        #region Properties
         public string Product
         {
             get => product;
@@ -63,16 +42,6 @@ namespace NeighborHelpMobileClient.ViewModels
             get => cost;
             set => SetProperty(ref cost, value);
         }
-        public string OrderType
-        {
-            get => orderType;
-            set => SetProperty(ref orderType, value);
-        }
-        public string Status
-        {
-            get => status;
-            set => SetProperty(ref status, value);
-        }
 
         public string ItemId
         {
@@ -87,9 +56,80 @@ namespace NeighborHelpMobileClient.ViewModels
             }
         }
 
-
         public Command SaveCommand { get; }
         public Command CancelCommand { get; }
+
+        public ObservableCollection<string> OrderTypes { get; set; }
+        public ObservableCollection<string> OrderStatuses { get; set; }
+
+        public int SelectedTypeIndex
+        {
+            get => selectedOrderTypeIndex;
+            set => SetProperty(ref selectedOrderTypeIndex, value);
+        }
+
+        public int SelectedStatusIndex
+        {
+            get => selectedStatusTypeIndex;
+            set => SetProperty(ref selectedStatusTypeIndex, value);
+        }
+
+        public IOrderStore OrderStore => DependencyService.Get<IOrderStore>();
+
+        #endregion Properties
+
+
+        #region Constructor
+
+        public EditOrderViewModel()
+        {
+            SaveCommand = new Command(OnSave, ValidateSave);
+            CancelCommand = new Command(OnCancel);
+            this.PropertyChanged +=
+                (_, __) => SaveCommand.ChangeCanExecute();
+
+            InitializeOrderValuesLists();
+        }
+
+        private void InitializeOrderValuesLists()
+        {
+            OrderTypes = new ObservableCollection<string>() {
+                NeighborHelpModels.Models.Consts.OrderTypes.BUY,
+                NeighborHelpModels.Models.Consts.OrderTypes.SELL
+            };
+            OrderStatuses = new ObservableCollection<string>()
+            {
+                NeighborHelpModels.Models.Consts.OrderStatus.INITIALIZE,
+                NeighborHelpModels.Models.Consts.OrderStatus.ACTIVE,
+                NeighborHelpModels.Models.Consts.OrderStatus.FINISHED,
+                NeighborHelpModels.Models.Consts.OrderStatus.CLOSED
+            };
+        }
+
+        #endregion Constructor
+
+
+        #region Methods
+        private bool ValidateSave()
+        {
+            bool isNotEmptyFields = !string.IsNullOrWhiteSpace(Product)
+                && !string.IsNullOrWhiteSpace(ProductDescription)
+                && !string.IsNullOrWhiteSpace(Cost)
+                &&  OrderTypes.ElementAtOrDefault(SelectedTypeIndex) !=null
+                &&  OrderStatuses.ElementAtOrDefault(SelectedStatusIndex) != null
+                && !string.IsNullOrWhiteSpace(id);
+
+            if (isNotEmptyFields && double.TryParse(Cost, out double result))
+            {
+                doubleCost = result;
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         private async void OnCancel()
         {
@@ -106,9 +146,9 @@ namespace NeighborHelpMobileClient.ViewModels
                 AuthorId = this.authorId,
                 Product = this.Product,
                 ProductDescription = this.ProductDescription,
-                OrderType = this.OrderType,
                 Cost = this.doubleCost,
-                Status = this.Status
+                OrderType = OrderTypes.ElementAtOrDefault(SelectedTypeIndex),
+                Status = OrderStatuses.ElementAtOrDefault(SelectedStatusIndex)
             };
 
             await OrderStore.UpdateItemAsync(newItem);
@@ -125,14 +165,17 @@ namespace NeighborHelpMobileClient.ViewModels
                 Product = item.Product;
                 ProductDescription = item.ProductDescription;
                 Cost = item.Cost.ToString();
-                OrderType = item.OrderType;
-                Status = item.Status;
                 authorId = item.AuthorId;
+
+                SelectedTypeIndex = OrderTypes.IndexOf(item.OrderType);
+                SelectedStatusIndex = OrderStatuses.IndexOf(item.Status);
             }
             catch (Exception)
             {
                 Debug.WriteLine("Failed to Load Item");
             }
+
+            #endregion Methods
         }
     }
 }
