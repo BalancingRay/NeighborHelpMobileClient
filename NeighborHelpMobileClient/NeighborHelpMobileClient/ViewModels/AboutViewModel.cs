@@ -9,6 +9,12 @@ namespace NeighborHelpMobileClient.ViewModels
     public class AboutViewModel : BaseViewModel
     {
         private string _serverAddress;
+
+        public AboutViewModel()
+        {
+            ServerAddress = DependencyService.Get<IConnectorProvider>().GetServerUrl();
+        }
+
         public string ServerAddress
         {
             get => _serverAddress;
