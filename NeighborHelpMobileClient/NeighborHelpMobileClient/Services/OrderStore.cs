@@ -1,5 +1,4 @@
-﻿using NeighborHelp.ApiConsts;
-using NeighborHelpMobileClient.Properties;
+﻿using NeighborHelpAPI.Consts;
 using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;

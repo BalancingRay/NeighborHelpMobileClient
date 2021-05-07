@@ -1,5 +1,4 @@
-﻿using NeighborHelp.ApiConsts;
-using NeighborHelpMobileClient.Services.Contracts;
+﻿using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using NeighborHelpModels.ControllersModel;
 using Newtonsoft.Json;
 using Xamarin.Forms;
+using NeighborHelpAPI.Consts;
 
 namespace NeighborHelpMobileClient.Services
 {
@@ -22,7 +22,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<bool> LoginAsync(string login, string password)
         {
             var data = new AuthentificateData() { Login = login, Password = password };
-            var result = await connecter.Post(PathConst.LOGIN_PATH, data);
+            var result = await connecter.Post(PathConst.LOGIN_BY_JWT_PATH, data);
 
             string token = JsonConvert.DeserializeObject<AuthentificateToken>(result)?.Token;
 

@@ -32,8 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="NeighborHelpAPI">
+      <HintPath>..\References\NeighborHelpAPI.dll</HintPath>
+    </Reference>
     <Reference Include="NeighborHelpModels">
-      <HintPath>..\net5.0\NeighborHelpModels.dll</HintPath>
+      <HintPath>..\References\NeighborHelpModels.dll</HintPath>
     </Reference>
   </ItemGroup>
 
