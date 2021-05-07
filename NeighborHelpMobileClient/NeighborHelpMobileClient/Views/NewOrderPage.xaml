@@ -15,7 +15,7 @@
             <Label Text="Cost" FontSize="Medium" />
             <Entry Text="{Binding Cost, Mode=TwoWay}" FontSize="Medium" />
             <Label Text="Order type" FontSize="Medium" />
-            <Entry Text="{Binding OrderType, Mode=TwoWay}" FontSize="Medium" />
+            <Picker ItemsSource="{Binding OrderTypes}" SelectedIndex="{Binding SelectedTypeIndex, Mode=TwoWay}"/>
             <StackLayout Orientation="Horizontal">
                 <Button Text="Cancel" Command="{Binding CancelCommand}" HorizontalOptions="FillAndExpand"></Button>
                 <Button Text="Save" Command="{Binding SaveCommand}" HorizontalOptions="FillAndExpand"></Button>

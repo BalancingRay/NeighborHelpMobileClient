@@ -1,4 +1,5 @@
 ﻿using NeighborHelpMobileClient.Services.Contracts;
+using NeighborHelpMobileClient.Views;
 using NeighborHelpModels.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -20,8 +21,8 @@ namespace NeighborHelpMobileClient.ViewModels
         private string cost;
         private double doubleCost;
         private int authorId;
-        private int selectedOrderTypeIndex;
-        private int selectedStatusTypeIndex;
+        private int selectedTypeIndex;
+        private int selectedStatusIndex;
 
         #endregion Fields
 
@@ -64,14 +65,14 @@ namespace NeighborHelpMobileClient.ViewModels
 
         public int SelectedTypeIndex
         {
-            get => selectedOrderTypeIndex;
-            set => SetProperty(ref selectedOrderTypeIndex, value);
+            get => selectedTypeIndex;
+            set => SetProperty(ref selectedTypeIndex, value);
         }
 
         public int SelectedStatusIndex
         {
-            get => selectedStatusTypeIndex;
-            set => SetProperty(ref selectedStatusTypeIndex, value);
+            get => selectedStatusIndex;
+            set => SetProperty(ref selectedStatusIndex, value);
         }
 
         public IOrderStore OrderStore => DependencyService.Get<IOrderStore>();
@@ -93,17 +94,8 @@ namespace NeighborHelpMobileClient.ViewModels
 
         private void InitializeOrderValuesLists()
         {
-            OrderTypes = new ObservableCollection<string>() {
-                NeighborHelpModels.Models.Consts.OrderTypes.BUY,
-                NeighborHelpModels.Models.Consts.OrderTypes.SELL
-            };
-            OrderStatuses = new ObservableCollection<string>()
-            {
-                NeighborHelpModels.Models.Consts.OrderStatus.INITIALIZE,
-                NeighborHelpModels.Models.Consts.OrderStatus.ACTIVE,
-                NeighborHelpModels.Models.Consts.OrderStatus.FINISHED,
-                NeighborHelpModels.Models.Consts.OrderStatus.CLOSED
-            };
+            OrderTypes = new ObservableCollection<string>(NeighborHelpModels.Extentions.OrderExtention.GetAllTypes(null));
+            OrderStatuses = new ObservableCollection<string>(NeighborHelpModels.Extentions.OrderExtention.GetAllStatuses(null));
         }
 
         #endregion Constructor
@@ -154,7 +146,7 @@ namespace NeighborHelpMobileClient.ViewModels
             await OrderStore.UpdateItemAsync(newItem);
 
             // This will pop the current page off the navigation stack
-            await Shell.Current.GoToAsync("..");
+            await Shell.Current.GoToAsync($"//{nameof(OrdersPage)}");
         }
 
         public async void LoadItemId(string itemId)
