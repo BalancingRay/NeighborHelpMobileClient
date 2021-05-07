@@ -7,14 +7,32 @@
              x:Class="NeighborHelpMobileClient.Views.LoginPage"
              Shell.NavBarIsVisible="False">
     <ContentPage.Content>
-        <StackLayout Padding="10,0,10,0" VerticalOptions="Center">
-            <Label Text="{Binding ErrorText, Mode=TwoWay}" TextColor="Tomato"/>
-            <Label Text="Login"/>
-            <Entry Text="{Binding Login, Mode=TwoWay}" FontSize="Medium" />
-            <Label Text="Password"/>
-            <Entry Text="{Binding Password, Mode=TwoWay}" FontSize="Medium" />
-            <Button VerticalOptions="Center" Text="Login" Command="{Binding LoginCommand}"/>
-            <Button VerticalOptions="Center" Text="Registration" Command="{Binding RegistrationCommand}"/>
-        </StackLayout>
+        <Grid
+            RowSpacing="0" ColumnSpacing="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackLayout Padding="10,0,10,0" 
+                         VerticalOptions="Center" 
+                         IsVisible="{Binding IsUnlogined}"
+                         Grid.Row="0">
+                <Label Text="{Binding ErrorText, Mode=TwoWay}" TextColor="Tomato"/>
+                <Label Text="Login"/>
+                <Entry Text="{Binding Login, Mode=TwoWay}" FontSize="Medium" />
+                <Label Text="Password"/>
+                <Entry Text="{Binding Password, Mode=TwoWay}" FontSize="Medium" IsPassword="True"/>
+                <Button VerticalOptions="Center" Text="Login" Command="{Binding LoginCommand}"/>
+                <Button VerticalOptions="Center" Text="Registration" Command="{Binding RegistrationCommand}"/>
+            </StackLayout>
+            <StackLayout Padding="10,0,10,0" 
+                         VerticalOptions="Center" 
+                         IsVisible="{Binding IsLogined}"
+                         Grid.Row="1">
+                <Label Text="Current Login:"/>
+                <Label Text="{Binding Login, Mode=TwoWay}" FontSize="Medium" />
+                <Button VerticalOptions="Center" Text="Unlogin" Command="{Binding UnloginCommand}"/>
+            </StackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>
