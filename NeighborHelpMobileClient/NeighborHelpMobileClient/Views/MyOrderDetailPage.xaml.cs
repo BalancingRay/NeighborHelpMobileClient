@@ -3,12 +3,12 @@ using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.Views
 {
-    public partial class OrderDetailPage : ContentPage
+    public partial class MyOrderDetailPage : ContentPage
     {
-        public OrderDetailPage()
+        public MyOrderDetailPage()
         {
             InitializeComponent();
-            BindingContext = new UseOrderDetailViewModel();
+            BindingContext = new OrderDetailViewModel();
         }
     }
 }

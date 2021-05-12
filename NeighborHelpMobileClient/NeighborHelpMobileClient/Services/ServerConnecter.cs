@@ -1,5 +1,6 @@
 ﻿using NeighborHelpMobileClient.Properties;
 using NeighborHelpMobileClient.Services.Contracts;
+using NeighborHelpMobileClient.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,13 @@ namespace NeighborHelpMobileClient.Services
     public class ServerConnecter
     {
         private const string AuthorizationHeader = "Authorization";
-        private double requestTimeout = 10;
-        private bool MultithreadingMode = false;
+        private double RequestTimeout;
+        private bool MultithreadingMode;
 
-        public ServerConnecter(bool supportMultithreading = DefaultSettings.SupportMultithreadingWebRequests)
+        public ServerConnecter(bool supportMultithreading = DefaultSettings.SupportMultithreadingWebRequests, double requestTimeout = DefaultSettings.RequestTimeout)
         {
             MultithreadingMode = supportMultithreading;
+            RequestTimeout = requestTimeout;
         }
 
         private IConnectorProvider ConnectionProvider = DependencyService.Get<IConnectorProvider>();
@@ -30,7 +32,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<string> Get(string request, bool useToken=false)
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             var response = await client.GetAsync(requestUri);
 
@@ -42,7 +44,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<T> Get<T>(string request, bool useToken = false) where T:class
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             var response = await client.GetAsync(requestUri);
 
@@ -60,7 +62,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<IEnumerable<T>> GetList<T>(string request, bool useToken = false)
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             var response = await client.GetAsync(requestUri);
 
@@ -78,7 +80,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<string> Post<T>(string request, T content, bool useToken = false) where T : class
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             string json = JsonConvert.SerializeObject(content);
             HttpContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
@@ -94,7 +96,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<string> Put<T>(string request, T content, bool useToken = false) where T : class
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             string json = JsonConvert.SerializeObject(content);
             HttpContent httpContent = new StringContent(json, Encoding.UTF8, "application/json");
@@ -110,7 +112,7 @@ namespace NeighborHelpMobileClient.Services
         public async Task<string> Delete(string request, bool useToken = false)
         {
             var client = GetClient(useToken);
-            var requestUri = BuldRequest(request);
+            var requestUri = BuildRequest(request);
 
             var response = await client.DeleteAsync(requestUri);
 
@@ -125,10 +127,9 @@ namespace NeighborHelpMobileClient.Services
         {
             if (httpClient == null || MultithreadingMode)
             {
-                var clientHandler = new HttpClientHandler();
-                clientHandler.ServerCertificateCustomValidationCallback = CheckHttpPolicy;
+                var clientHandler = SslSertificateValidator.BuildHttpClientHandler();
                 httpClient = new HttpClient(clientHandler);
-                httpClient.Timeout = TimeSpan.FromSeconds(requestTimeout);
+                httpClient.Timeout = TimeSpan.FromSeconds(RequestTimeout);
             }
 
             if (useToken)
@@ -142,16 +143,7 @@ namespace NeighborHelpMobileClient.Services
             return httpClient;
         }
 
-        private bool CheckHttpPolicy(
-            HttpRequestMessage sender, 
-            System.Security.Cryptography.X509Certificates.X509Certificate2 cert, 
-            System.Security.Cryptography.X509Certificates.X509Chain chain,
-            System.Net.Security.SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
-
-        private string BuldRequest(string apiRequest)
+        private string BuildRequest(string apiRequest)
         {
             var fullRequest = string.Format("{0}/{1}", HostAddress.TrimEnd('/'), apiRequest.TrimStart('/'));
             return fullRequest;

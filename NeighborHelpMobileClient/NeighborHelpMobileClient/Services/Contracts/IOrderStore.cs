@@ -6,6 +6,10 @@ namespace NeighborHelpMobileClient.Services.Contracts
 {
     public interface IOrderStore : IDataStore<Order>
     {
-        Task<IEnumerable<Order>> GetItemsByUserIdAsync(int userId);
+        Task<IEnumerable<Order>> GetItemsByUserIdAsync(string userId);
+
+        Task<IEnumerable<Order>> GetCurrentUserItemsAsync();
+
+        Task<bool> UseOrder(Order order);
     }
 }

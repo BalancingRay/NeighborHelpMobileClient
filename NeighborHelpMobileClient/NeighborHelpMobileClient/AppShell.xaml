@@ -93,6 +93,17 @@
                 Icon="icon_feed.png"
                 Route="OrdersPage" 
                 ContentTemplate="{DataTemplate local:OrdersPage}" />
+            <ShellContent 
+                Title="My Orders"
+                Icon="icon_feed.png"
+                Route="MyOrdersPage" 
+                ContentTemplate="{DataTemplate local:MyOrdersPage}" />
+        </Tab>
+        <Tab Title="Chat">
+            <ShellContent
+                Title="Chat"
+                Route="Chat"
+                ContentTemplate="{DataTemplate local:ChatPage}"/>
         </Tab>
     </TabBar>
 </Shell>

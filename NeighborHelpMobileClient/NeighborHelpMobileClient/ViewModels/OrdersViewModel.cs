@@ -1,47 +1,43 @@
 ﻿using NeighborHelpMobileClient.Services.Contracts;
+using NeighborHelpMobileClient.ViewModels.Base;
 using NeighborHelpMobileClient.Views;
 using NeighborHelpModels.Models;
 using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.ViewModels
 {
-    public class OrdersViewModel : BaseViewModel
+    public class OrdersViewModel : OrdersListViewModelBase
     {
-        public IOrderStore OrderStore => DependencyService.Get<IOrderStore>();
-
-        private Order _selectedItem;
-
-        public ObservableCollection<Order> Items { get; }
-        public Command LoadItemsCommand { get; }
-        public Command AddItemCommand { get; }
-        public Command<Order> ItemTapped { get; }
+        private Command addOrderCommand;
+        public Command AddOrderCommand => addOrderCommand 
+            ?? (addOrderCommand = new Command(async ()=> await OpenNewOrderPage()));
 
         public OrdersViewModel()
         {
             Title = "Browse";
-            Items = new ObservableCollection<Order>();
-            LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-
-            ItemTapped = new Command<Order>(OnItemSelected);
-
-            AddItemCommand = new Command(OnAddItem);
         }
 
-        async Task ExecuteLoadItemsCommand()
+        protected override async Task ExecuteLoadItemsCommand()
         {
-            IsBusy = true;
-
             try
             {
+                IsBusy = true;
                 Items.Clear();
-                var items = await OrderStore.GetItemsAsync(true);
+
+                string userId = DependencyService.Get<IConnectorProvider>()?.GetToken()?.UserId;
+
+                var items = await OrderStore.GetItemsAsync();
+
                 foreach (var item in items)
                 {
-                    Items.Add(item);
+                    bool isNotCurrentUserOrder = item.AuthorId.ToString() != userId;
+                    if (isNotCurrentUserOrder)
+                    {
+                        Items.Add(item);
+                    }
                 }
             }
             catch (Exception ex)
@@ -54,33 +50,19 @@ namespace NeighborHelpMobileClient.ViewModels
             }
         }
 
-        public void OnAppearing()
-        {
-            IsBusy = true;
-            SelectedItem = null;
-        }
-
-        public Order SelectedItem
-        {
-            get => _selectedItem;
-            set
-            {
-                SetProperty(ref _selectedItem, value);
-                OnItemSelected(value);
-            }
-        }
-
-        private async void OnAddItem(object obj)
-        {
-            await Shell.Current.GoToAsync(nameof(NewOrderPage));
-        }
-
-        async void OnItemSelected(Order item)
+        protected override async void OnItemSelected(Order item)
         {
             if (item == null)
                 return;
             // This will push the ItemDetailPage onto the navigation stack
-            await Shell.Current.GoToAsync($"{nameof(OrderDetailPage)}?{nameof(OrderDetailViewModel.ItemId)}={item.Id}");
+            string navigationString = $"{nameof(OrderDetailPage)}?{nameof(UseOrderDetailViewModel.ItemId)}={item.Id}";
+            await Shell.Current.GoToAsync(navigationString);
+        }
+
+        private async Task OpenNewOrderPage()
+        {
+            string navigationString = nameof(NewOrderPage);
+            await Shell.Current.GoToAsync(navigationString);
         }
     }
 }

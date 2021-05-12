@@ -3,6 +3,7 @@ using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace NeighborHelpMobileClient.Services
@@ -20,15 +21,16 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                await connecter.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
+                var result = await connecter.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return false;
             }
-
-            //TODO fix return
-            return true;
         }
 
         public async Task<bool> DeleteItemAsync(string id)
@@ -46,7 +48,8 @@ namespace NeighborHelpMobileClient.Services
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return null;
             }
         }
 
@@ -58,11 +61,12 @@ namespace NeighborHelpMobileClient.Services
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return new Order[0];
             }
         }
 
-        public async Task<IEnumerable<Order>> GetItemsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Order>> GetItemsByUserIdAsync(string userId)
         {
             try
             {
@@ -70,7 +74,38 @@ namespace NeighborHelpMobileClient.Services
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return new Order[0];
+            }
+        }
+
+        public async Task<IEnumerable<Order>> GetCurrentUserItemsAsync()
+        {
+            try
+            {
+                var userId = Xamarin.Forms.DependencyService.Get<IConnectorProvider>()?.GetToken()?.UserId;
+                return await GetItemsByUserIdAsync(userId);
+            }
+            catch(Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return new Order[0];
+            }
+        }
+
+        public async Task<bool> UseOrder(Order order)
+        {
+            try
+            {
+                var result = await connecter.Put<Order>(PathConst.RESPONCE_ORDER_PATH, order, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return false;
             }
         }
 
@@ -78,15 +113,16 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                await connecter.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
+                var result = await connecter.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return false;
             }
-
-            //TODO fix return
-            return true;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using NeighborHelpMobileClient.Services;
 using NeighborHelpMobileClient.Services.Contracts;
-using System.Net;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient
