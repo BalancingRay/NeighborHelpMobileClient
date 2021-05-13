@@ -11,11 +11,12 @@ namespace NeighborHelpMobileClient
         {
             InitializeComponent();
 
+            MainPage = new AppShell();
+
             DependencyService.Register<IOrderStore, OrderStore>();
             DependencyService.Register<IUserStore, UserStore>();
             DependencyService.RegisterSingleton<IConnectorProvider>(new AuthenticationTokenProvider());
-
-            MainPage = new AppShell();
+            DependencyService.RegisterSingleton<IMessageBoxService>(new MessageBoxService(MainPage));
         }
 
         protected override void OnStart()

@@ -25,42 +25,25 @@ namespace NeighborHelpMobileClient.ViewModels
 
         protected override async void OnCommandExecute()
         {
-            if (string.IsNullOrEmpty(ItemId))
+            if (string.IsNullOrEmpty(ItemId)
+                || !await ApplyUseOrderAction())
                 return;
 
-            //TODO confirm action
-
-            if (await OrderStore.UseOrder(BuildOrder()))
+            if (await OrderStore.UseOrder(LoadedItem))
             {
                 await LoadItemId(ItemId);
             }
             else
             {
-                //TODO show messare
                 ErrorMessage = "Attempt failed";
             }
         }
 
-        private Order BuildOrder()
+        private async Task<bool> ApplyUseOrderAction()
         {
-            //var order = new Order()
-            //{
-            //    Id = LoadedItem.Id,
-            //    Product = this.Product,
-            //    ProductDescription = this.ProductDescription,
-            //    Cost = double.Parse(this.Cost),
-            //    OrderType = this.OrderType,
-            //    Status = this.Status,
-            //    AuthorId = int.Parse(this.AuthorId),
-            //    Author = new UserProfile()
-            //    {
-            //        Name = AuthorName,
-            //        Address = ProfileAddress,
-            //        PhoneNumber = ProfilePhoneNumber
-            //    }
-            //};
-
-            return LoadedItem;
+            string title = "Appply selected order?";
+            string message = $"Do you want to {LoadedItem.OrderType} {LoadedItem.Product} with cost {LoadedItem.Cost}?";
+            return await DependencyService.Get<IMessageBoxService>().ConfirmAction(title, message);
         }
 
         protected override async Task LoadItemId(string itemId)

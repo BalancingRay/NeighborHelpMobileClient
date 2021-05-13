@@ -11,7 +11,6 @@ namespace NeighborHelpMobileClient.ViewModels
     {
 
         private string errorText;
-        //private Command _registrationCommand;
 
         public IUserStore UserStore => DependencyService.Get<IUserStore>();
 
