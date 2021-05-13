@@ -7,7 +7,7 @@
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
                            HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand"/>
             <StackLayout Padding="10">
-                <Label FontSize="Small" Text="Сообщение" VerticalOptions="Center"/>
+                <Label FontSize="Small" Text="Message" VerticalOptions="Center"/>
                 <Entry HorizontalOptions="FillAndExpand" Text="{Binding Message}"/>
                 <Button Text="Отправить" IsEnabled="{Binding IsConnected}" Command="{Binding SendMessageCommand}"/>
             </StackLayout>

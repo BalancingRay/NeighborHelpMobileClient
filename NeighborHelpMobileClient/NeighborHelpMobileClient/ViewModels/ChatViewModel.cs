@@ -85,10 +85,6 @@ namespace NeighborHelpMobileClient.ViewModels
                 await hubConnector.SendMessageToServer(Message);
                 Message = string.Empty;
             }
-            catch (Exception ex)
-            {
-                SendLocalMessage(string.Empty, $"Ошибка отправки: {ex.Message}");
-            }
             finally
             {
                 IsBusy = false;
