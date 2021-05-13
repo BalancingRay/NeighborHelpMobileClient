@@ -1,35 +1,36 @@
-﻿using NeighborHelp.ApiConsts;
-using NeighborHelpMobileClient.Properties;
+﻿using NeighborHelpAPI.Consts;
 using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace NeighborHelpMobileClient.Services
 {
     public class OrderStore : IOrderStore
     {
-        private ServerConnecter connecter;
+        private ServerRESTConnector connector;
 
         public OrderStore()
         {
-            connecter = new ServerConnecter();
+            connector = new ServerRESTConnector();
         }
 
         public async Task<bool> AddItemAsync(Order item)
         {
             try
             {
-                await connecter.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
+                var result = await connector.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return false;
             }
-
-            //TODO fix return
-            return true;
         }
 
         public async Task<bool> DeleteItemAsync(string id)
@@ -43,11 +44,12 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                return await connecter.Get<Order>($"{PathConst.GET_ORDER_PATH}/{id}");
+                return await connector.Get<Order>($"{PathConst.GET_ORDER_PATH}/{id}");
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return null;
             }
         }
 
@@ -55,23 +57,55 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                return await connecter.GetList<Order>(PathConst.GET_ORDERS_PATH);
+                return await connector.GetList<Order>(PathConst.GET_ORDERS_PATH);
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return new Order[0];
             }
         }
 
-        public async Task<IEnumerable<Order>> GetItemsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Order>> GetItemsByUserIdAsync(string userId)
         {
             try
             {
-                return await connecter.GetList<Order>($"{PathConst.GET_ORDERS_BY_USER_PATH}/{userId}");
+                return await connector.GetList<Order>($"{PathConst.GET_ORDERS_BY_USER_PATH}/{userId}");
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return new Order[0];
+            }
+        }
+
+        public async Task<IEnumerable<Order>> GetCurrentUserItemsAsync()
+        {
+            try
+            {
+                var userId = Xamarin.Forms.DependencyService.Get<IConnectorProvider>()?.GetToken()?.UserId;
+                return await GetItemsByUserIdAsync(userId);
+            }
+            catch(Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return new Order[0];
+            }
+        }
+
+        public async Task<bool> UseOrder(Order order)
+        {
+            try
+            {
+                var result = await connector.Put<Order>(PathConst.RESPONCE_ORDER_PATH, order, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return false;
             }
         }
 
@@ -79,15 +113,16 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                await connecter.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
+                var result = await connector.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
+
+                bool isNotEmpty = !string.IsNullOrEmpty(result);
+                return isNotEmpty;
             }
             catch (Exception exc)
             {
-                throw (exc);
+                Debug.Fail(exc.Message);
+                return false;
             }
-
-            //TODO fix return
-            return true;
         }
     }
 }

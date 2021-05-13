@@ -7,6 +7,8 @@ namespace NeighborHelpMobileClient.Services.Contracts
     {
         Task<bool> LoginAsync(string login, string password);
 
+        void Unlogin();
+
         Task<User> GetCurrentUserAsync();
     }
 }

@@ -1,6 +1,5 @@
 ﻿using NeighborHelpMobileClient.Services;
 using NeighborHelpMobileClient.Services.Contracts;
-using System.Net;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient
@@ -12,11 +11,12 @@ namespace NeighborHelpMobileClient
         {
             InitializeComponent();
 
+            MainPage = new AppShell();
+
             DependencyService.Register<IOrderStore, OrderStore>();
             DependencyService.Register<IUserStore, UserStore>();
-            DependencyService.RegisterSingleton<IConnectorProvider>(new AuthificationTokenProvider());
-
-            MainPage = new AppShell();
+            DependencyService.RegisterSingleton<IConnectorProvider>(new AuthenticationTokenProvider());
+            DependencyService.RegisterSingleton<IMessageBoxService>(new MessageBoxService(MainPage));
         }
 
         protected override void OnStart()

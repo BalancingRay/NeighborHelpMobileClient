@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="NeighborHelpMobileClient.Views.RegistrationPage"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="True">
     <ContentPage.Content>
         <ScrollView>
             <StackLayout Padding="10,0,10,0" VerticalOptions="Center">
@@ -13,9 +13,9 @@
                 <Label Text="Login"/>
                 <Entry Text="{Binding Login, Mode=TwoWay}" FontSize="Medium" />
                 <Label Text="Password"/>
-                <Entry Text="{Binding Password, Mode=TwoWay}" FontSize="Medium"/>
+                <Entry Text="{Binding Password, Mode=TwoWay}" FontSize="Medium" IsPassword="True"/>
                 <Label Text="Confirm Password"/>
-                <Entry Text="{Binding ConfirmedPassword, Mode=TwoWay}" FontSize="Medium" />
+                <Entry Text="{Binding ConfirmedPassword, Mode=TwoWay}" FontSize="Medium" IsPassword="True"/>
                 <Label Text="User name"/>
                 <Entry Text="{Binding UserName, Mode=TwoWay}" FontSize="Medium" />
                 <Label Text="Your profile data:" FontSize="Medium"/>

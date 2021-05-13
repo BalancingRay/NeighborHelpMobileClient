@@ -1,5 +1,4 @@
-﻿using NeighborHelp.ApiConsts;
-using NeighborHelpMobileClient.Services.Contracts;
+﻿using NeighborHelpMobileClient.Services.Contracts;
 using NeighborHelpModels.Models;
 using System;
 using System.Collections.Generic;
@@ -7,40 +6,63 @@ using System.Threading.Tasks;
 using NeighborHelpModels.ControllersModel;
 using Newtonsoft.Json;
 using Xamarin.Forms;
+using NeighborHelpAPI.Consts;
+using System.Diagnostics;
 
 namespace NeighborHelpMobileClient.Services
 {
     public class UserStore : IUserStore
     {
-        private ServerConnecter connecter;
+        private ServerRESTConnector connector;
 
         public UserStore()
         {
-            connecter = new ServerConnecter();
+            connector = new ServerRESTConnector();
         }
 
         public async Task<bool> LoginAsync(string login, string password)
         {
-            var data = new AuthentificateData() { Login = login, Password = password };
-            var result = await connecter.Post(PathConst.LOGIN_PATH, data);
+            try
+            {
+                var data = new AuthentificateData() { Login = login, Password = password };
+                var result = await connector.Post(PathConst.LOGIN_BY_JWT_PATH, data);
 
-            string token = JsonConvert.DeserializeObject<AuthentificateToken>(result)?.Token;
+                var token = JsonConvert.DeserializeObject<AuthentificateToken>(result);
 
-            if (!string.IsNullOrEmpty(token))
-            {  
-                DependencyService.Get<IConnectorProvider>().UpdateToken(token);
-                return true;
+                if (token?.Token != null)
+                {
+                    DependencyService.Get<IConnectorProvider>().UpdateToken(token);
+                    return true;
+                }
+
+                return false;
             }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return false;
+            }
+        }
 
-            return false;
+        public void Unlogin()
+        {
+            DependencyService.Get<IConnectorProvider>().UpdateToken(new AuthentificateToken());
         }
 
         public async Task<bool> AddItemAsync(User item)
         {
-            await connecter.Post<User>(PathConst.ADD_USER_PATH, item);
+            try
+            {
+                var result = await connector.Post<User>(PathConst.ADD_USER_PATH, item);
 
-            //TODO fix result
-            return true;
+                bool isResultNotEmpty = !string.IsNullOrEmpty(result);
+                return isResultNotEmpty;
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return false;
+            }
         }
 
         public async Task<bool> DeleteItemAsync(string id)
@@ -50,25 +72,57 @@ namespace NeighborHelpMobileClient.Services
 
         public async Task<User> GetItemAsync(string id)
         {
-            return await connecter.Get<User>($"{PathConst.GET_USER_PATH}/{id}", true);
+            try
+            {
+                return await connector.Get<User>($"{PathConst.GET_USER_PATH}/{id}", true);
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return null;
+            }
         }
 
         public async Task<User> GetCurrentUserAsync()
         {
-            return await connecter.Get<User>(PathConst.CURRENT_USER_PATH, true);
+            try
+            {
+                return await connector.Get<User>(PathConst.CURRENT_USER_PATH, true);
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return null;
+            }
         }
 
         public async Task<IEnumerable<User>> GetItemsAsync(bool forceRefresh = false)
         {
-            return await connecter.GetList<User>(PathConst.GET_USERS_PATH, true);
+            try
+            {
+                return await connector.GetList<User>(PathConst.GET_USERS_PATH, true);
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return new User[0];
+            }
         }
 
         public async Task<bool> UpdateItemAsync(User item)
         {
-            await connecter.Put<User>(PathConst.PUT_USER_PATH, item, true);
+            try
+            {
+                var result = await connector.Put<User>(PathConst.PUT_USER_PATH, item, true);
 
-            //TODO fix result
-            return true;
+                bool isResultNotEmpty = !string.IsNullOrEmpty(result);
+                return isResultNotEmpty;
+            }
+            catch (Exception exc)
+            {
+                Debug.Fail(exc.Message);
+                return false;
+            }
         }
     }
 }

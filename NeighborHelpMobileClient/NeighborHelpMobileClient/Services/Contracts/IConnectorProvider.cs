@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NeighborHelpModels.ControllersModel;
+using System;
 
 namespace NeighborHelpMobileClient.Services.Contracts
 {
     public interface IConnectorProvider
     {
-        string GetToken();
+        AuthentificateToken GetToken();
 
-        void UpdateToken(string value);
+        void AddUpdateTokenCallback(Action<AuthentificateToken> onTokenUpdateCallback);
+
+        void UpdateToken(AuthentificateToken value);
 
         string GetServerUrl();
 

@@ -1,7 +1,4 @@
-﻿using NeighborHelpMobileClient.Services;
-using NeighborHelpMobileClient.Services.Contracts;
-using System.Windows.Input;
-using Xamarin.Essentials;
+﻿using NeighborHelpMobileClient.Services.Contracts;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.ViewModels
@@ -9,6 +6,14 @@ namespace NeighborHelpMobileClient.ViewModels
     public class AboutViewModel : BaseViewModel
     {
         private string _serverAddress;
+
+        private IConnectorProvider ConnectorProvider => DependencyService.Get<IConnectorProvider>();
+
+        public AboutViewModel()
+        {
+            ServerAddress = ConnectorProvider.GetServerUrl();
+        }
+
         public string ServerAddress
         {
             get => _serverAddress;
@@ -16,9 +21,9 @@ namespace NeighborHelpMobileClient.ViewModels
             {
                 SetProperty(ref _serverAddress, value);
 
-                if (_serverAddress != DependencyService.Get<IConnectorProvider>().GetServerUrl())
+                if (_serverAddress != ConnectorProvider.GetServerUrl())
                 {
-                    DependencyService.Get<IConnectorProvider>().UpdateServerUrl(_serverAddress);
+                    ConnectorProvider.UpdateServerUrl(_serverAddress);
                 }
             }
         }

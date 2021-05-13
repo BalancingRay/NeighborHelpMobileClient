@@ -1,5 +1,4 @@
-﻿using NeighborHelpMobileClient.Services.Contracts;
-using NeighborHelpMobileClient.ViewModels.Base;
+﻿using NeighborHelpMobileClient.ViewModels.Base;
 using NeighborHelpMobileClient.Views;
 using NeighborHelpModels.Models;
 using System;
@@ -9,31 +8,28 @@ using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.ViewModels
 {
-    public class OrdersViewModel : OrdersListViewModelBase
+    public class MyOrdersViewModel : OrdersListViewModelBase
     {
-        public OrdersViewModel()
+        private Command addOrderCommand;
+        public Command AddOrderCommand => addOrderCommand
+            ?? (addOrderCommand = new Command(async () => await OpenNewOrderPage()));
+
+        public MyOrdersViewModel()
         {
-            Title = "Browse";
+            Title = "My orders";
         }
 
         protected override async Task ExecuteLoadItemsCommand()
         {
+            IsBusy = true;
+
             try
             {
-                IsBusy = true;
                 Items.Clear();
-
-                string userId = DependencyService.Get<IConnectorProvider>()?.GetToken()?.UserId;
-
-                var items = await OrderStore.GetItemsAsync();
-
+                var items = await OrderStore.GetCurrentUserItemsAsync();
                 foreach (var item in items)
                 {
-                    bool isNotCurrentUserOrder = item.AuthorId.ToString() != userId;
-                    if (isNotCurrentUserOrder)
-                    {
-                        Items.Add(item);
-                    }
+                    Items.Add(item);
                 }
             }
             catch (Exception ex)
@@ -51,7 +47,13 @@ namespace NeighborHelpMobileClient.ViewModels
             if (item == null)
                 return;
             // This will push the ItemDetailPage onto the navigation stack
-            string navigationString = $"{nameof(OrderDetailPage)}?{nameof(UseOrderDetailViewModel.ItemId)}={item.Id}";
+            string navigationString = $"{nameof(MyOrderDetailPage)}?{nameof(OrderDetailViewModel.ItemId)}={item.Id}";
+            await Shell.Current.GoToAsync(navigationString);
+        }
+
+        private async Task OpenNewOrderPage()
+        {
+            string navigationString = nameof(NewOrderPage);
             await Shell.Current.GoToAsync(navigationString);
         }
     }
