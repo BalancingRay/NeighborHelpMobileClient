@@ -10,6 +10,10 @@ namespace NeighborHelpMobileClient.ViewModels
 {
     public class MyOrdersViewModel : OrdersListViewModelBase
     {
+        private Command addOrderCommand;
+        public Command AddOrderCommand => addOrderCommand
+            ?? (addOrderCommand = new Command(async () => await OpenNewOrderPage()));
+
         public MyOrdersViewModel()
         {
             Title = "My orders";
@@ -44,6 +48,12 @@ namespace NeighborHelpMobileClient.ViewModels
                 return;
             // This will push the ItemDetailPage onto the navigation stack
             string navigationString = $"{nameof(MyOrderDetailPage)}?{nameof(OrderDetailViewModel.ItemId)}={item.Id}";
+            await Shell.Current.GoToAsync(navigationString);
+        }
+
+        private async Task OpenNewOrderPage()
+        {
+            string navigationString = nameof(NewOrderPage);
             await Shell.Current.GoToAsync(navigationString);
         }
     }
