@@ -11,23 +11,37 @@ using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.Services
 {
-    public class ServerConnecter
+    public class ServerRESTConnector
     {
+        #region Fields
+
         private const string AuthorizationHeader = "Authorization";
         private double RequestTimeout;
         private bool MultithreadingMode;
+        private HttpClient httpClient;
 
-        public ServerConnecter(bool supportMultithreading = DefaultSettings.SupportMultithreadingWebRequests, double requestTimeout = DefaultSettings.RequestTimeout)
-        {
-            MultithreadingMode = supportMultithreading;
-            RequestTimeout = requestTimeout;
-        }
+        #endregion Fields
+
+        #region Properties
 
         private IConnectorProvider ConnectionProvider = DependencyService.Get<IConnectorProvider>();
 
         private string HostAddress => ConnectionProvider.GetServerUrl();
 
         private string AuthorizationToken => ConnectionProvider.GetToken()?.Token;
+
+        #endregion Properties
+
+        #region Constructor
+
+        public ServerRESTConnector(bool supportMultithreading = DefaultSettings.SupportMultithreadingWebRequests, double requestTimeout = DefaultSettings.RequestTimeout)
+        {
+            MultithreadingMode = supportMultithreading;
+            RequestTimeout = requestTimeout;
+        }
+        #endregion Constructor
+
+        #region Public Methods
 
         public async Task<string> Get(string request, bool useToken=false)
         {
@@ -121,7 +135,9 @@ namespace NeighborHelpMobileClient.Services
             return result;
         }
 
-        private HttpClient httpClient;
+        #endregion Public Methods
+
+        #region Private Methods
 
         private HttpClient GetClient(bool useToken)
         {
@@ -163,5 +179,6 @@ namespace NeighborHelpMobileClient.Services
             }
         }
 
+        #endregion Private Methods
     }
 }

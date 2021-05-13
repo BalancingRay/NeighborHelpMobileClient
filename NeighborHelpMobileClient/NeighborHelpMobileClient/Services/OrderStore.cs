@@ -10,18 +10,18 @@ namespace NeighborHelpMobileClient.Services
 {
     public class OrderStore : IOrderStore
     {
-        private ServerConnecter connecter;
+        private ServerRESTConnector connector;
 
         public OrderStore()
         {
-            connecter = new ServerConnecter();
+            connector = new ServerRESTConnector();
         }
 
         public async Task<bool> AddItemAsync(Order item)
         {
             try
             {
-                var result = await connecter.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
+                var result = await connector.Post<Order>(PathConst.ADD_ORDER_PATH, item, true);
 
                 bool isNotEmpty = !string.IsNullOrEmpty(result);
                 return isNotEmpty;
@@ -44,7 +44,7 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                return await connecter.Get<Order>($"{PathConst.GET_ORDER_PATH}/{id}");
+                return await connector.Get<Order>($"{PathConst.GET_ORDER_PATH}/{id}");
             }
             catch (Exception exc)
             {
@@ -57,7 +57,7 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                return await connecter.GetList<Order>(PathConst.GET_ORDERS_PATH);
+                return await connector.GetList<Order>(PathConst.GET_ORDERS_PATH);
             }
             catch (Exception exc)
             {
@@ -70,7 +70,7 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                return await connecter.GetList<Order>($"{PathConst.GET_ORDERS_BY_USER_PATH}/{userId}");
+                return await connector.GetList<Order>($"{PathConst.GET_ORDERS_BY_USER_PATH}/{userId}");
             }
             catch (Exception exc)
             {
@@ -97,7 +97,7 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                var result = await connecter.Put<Order>(PathConst.RESPONCE_ORDER_PATH, order, true);
+                var result = await connector.Put<Order>(PathConst.RESPONCE_ORDER_PATH, order, true);
 
                 bool isNotEmpty = !string.IsNullOrEmpty(result);
                 return isNotEmpty;
@@ -113,7 +113,7 @@ namespace NeighborHelpMobileClient.Services
         {
             try
             {
-                var result = await connecter.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
+                var result = await connector.Put<Order>(PathConst.PUT_ORDER_PATH, item, true);
 
                 bool isNotEmpty = !string.IsNullOrEmpty(result);
                 return isNotEmpty;
