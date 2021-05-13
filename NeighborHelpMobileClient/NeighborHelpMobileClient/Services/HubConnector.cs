@@ -41,7 +41,7 @@ namespace NeighborHelpMobileClient.Services
 
         private string AuthorizationToken => ConnectionProvider.GetToken()?.Token;
 
-        private bool isConnected;// hubConnection?.State == HubConnectionState.Connected;
+        private bool isConnected;
         private bool IsConnected 
         {
            get  => isConnected;
@@ -100,11 +100,11 @@ namespace NeighborHelpMobileClient.Services
                 await hubConnection.StartAsync();
                 IsConnected = true;
 
-                SendLocalSystemMessage("Вы вошли в чат...");
+                SendLocalSystemMessage("The chat is started...");
             }
             catch (Exception ex)
             {
-                SendLocalSystemMessage($"Ошибка подключения: {ex.Message}");
+                SendLocalSystemMessage($"Connection error: {ex.Message}");
             }
         }
 
@@ -117,7 +117,7 @@ namespace NeighborHelpMobileClient.Services
 
             await hubConnection.StopAsync();
             IsConnected = false;
-            SendLocalSystemMessage("Вы покинули чат...");
+            SendLocalSystemMessage("The chat is stopped...");
         }
 
         #endregion Public Methods
@@ -137,17 +137,13 @@ namespace NeighborHelpMobileClient.Services
             }
         }
 
-        //private void UpdateConnectionState()
-        //{
-        //    UpdateConnectedStateAction?.Invoke(IsConnected);
-        //}
-
         private async Task OnConnectionClosed(Exception exc)
         {
-            SendLocalSystemMessage("Подключение закрыто...");
+            SendLocalSystemMessage("The connection is lose...");
             IsConnected = false;
             if (EnableReconnecting && !isStoppedManually)
             {
+                SendLocalSystemMessage("Try to reconnect...");
                 await Task.Delay(reconnectionTime);
                 await Start();
             }
