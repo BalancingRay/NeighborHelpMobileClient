@@ -13,7 +13,7 @@ namespace NeighborHelpMobileClient
 
             DependencyService.Register<IOrderStore, OrderStore>();
             DependencyService.Register<IUserStore, UserStore>();
-            DependencyService.RegisterSingleton<IConnectorProvider>(new AuthificationTokenProvider());
+            DependencyService.RegisterSingleton<IConnectorProvider>(new AuthenticationTokenProvider());
 
             MainPage = new AppShell();
         }

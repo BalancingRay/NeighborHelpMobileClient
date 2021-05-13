@@ -5,7 +5,7 @@ using System;
 
 namespace NeighborHelpMobileClient.Services
 {
-    public class AuthificationTokenProvider : IConnectorProvider
+    public class AuthenticationTokenProvider : IConnectorProvider
     {
         private AuthentificateToken token;
         private string address = DefaultSettings.LocalHostAddress;
