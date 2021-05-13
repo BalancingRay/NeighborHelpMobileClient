@@ -7,6 +7,7 @@ using Xamarin.Forms;
 using NeighborHelpMobileClient.Properties;
 using NeighborHelpMobileClient.Utils;
 using NeighborHelpModels.ControllersModel;
+using NeighborHelpMobileClient.Resources;
 
 namespace NeighborHelpMobileClient.Services
 {
@@ -42,9 +43,9 @@ namespace NeighborHelpMobileClient.Services
         private string AuthorizationToken => ConnectionProvider.GetToken()?.Token;
 
         private bool isConnected;
-        private bool IsConnected 
+        private bool IsConnected
         {
-           get  => isConnected;
+            get => isConnected;
             set
             {
                 isConnected = value;
@@ -86,7 +87,14 @@ namespace NeighborHelpMobileClient.Services
         #region Public Methods
         public async Task SendMessageToServer(string message)
         {
-            await Connection.InvokeAsync(ChatHubConsts.SendMessage, message);
+            try
+            {
+                await Connection.InvokeAsync(ChatHubConsts.SendMessage, message);
+            }
+            catch (Exception ex)
+            {
+                SendLocalSystemMessage(string.Format(Strings.OnSendingErrorMessage,ex.Message));
+            }
         }
 
         public async Task Start()
@@ -100,11 +108,11 @@ namespace NeighborHelpMobileClient.Services
                 await hubConnection.StartAsync();
                 IsConnected = true;
 
-                SendLocalSystemMessage("The chat is started...");
+                SendLocalSystemMessage(Strings.OnChatStartedMessage);
             }
             catch (Exception ex)
             {
-                SendLocalSystemMessage($"Connection error: {ex.Message}");
+                SendLocalSystemMessage(string.Format(Strings.ConnectionErrorMessage, ex.Message));
             }
         }
 
@@ -117,7 +125,7 @@ namespace NeighborHelpMobileClient.Services
 
             await hubConnection.StopAsync();
             IsConnected = false;
-            SendLocalSystemMessage("The chat is stopped...");
+            SendLocalSystemMessage(Strings.OnChatStoppedMessage);
         }
 
         #endregion Public Methods
@@ -139,11 +147,11 @@ namespace NeighborHelpMobileClient.Services
 
         private async Task OnConnectionClosed(Exception exc)
         {
-            SendLocalSystemMessage("The connection is lose...");
+            SendLocalSystemMessage(Strings.OnConnectionClosedMessage);
             IsConnected = false;
             if (EnableReconnecting && !isStoppedManually)
             {
-                SendLocalSystemMessage("Try to reconnect...");
+                SendLocalSystemMessage(Strings.OnReconnectMessage);
                 await Task.Delay(reconnectionTime);
                 await Start();
             }
