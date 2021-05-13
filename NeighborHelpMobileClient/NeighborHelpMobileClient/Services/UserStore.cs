@@ -70,5 +70,10 @@ namespace NeighborHelpMobileClient.Services
             //TODO fix result
             return true;
         }
+
+        public void Unlogin()
+        {
+            DependencyService.Get<IConnectorProvider>().UpdateToken(new AuthentificateToken());
+        }
     }
 }

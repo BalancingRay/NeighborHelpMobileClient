@@ -2,6 +2,7 @@
 using NeighborHelpMobileClient.Views;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace NeighborHelpMobileClient.ViewModels
@@ -14,12 +15,17 @@ namespace NeighborHelpMobileClient.ViewModels
         private bool isLogined;
         private bool isUnlogined;
         private string login;
+        private string password;
         public string Login
         {
             get => login;
             set => SetProperty(ref login, value);
         }
-        public string Password { get; set; }
+        public string Password
+        {
+            get => password;
+            set => SetProperty(ref password, value);
+        }
 
 
         public string ErrorText
@@ -53,21 +59,18 @@ namespace NeighborHelpMobileClient.ViewModels
         public LoginViewModel()
         {
             IsLogined = false;
-            LoginCommand = new Command(OnLoginClicked);
-            UnloginCommand = new Command((o) => IsLogined = false);// (o) => IsLogined == true);
-            RegistrationCommand = new Command(OnRegistrationClicked);
+            LoginCommand = new Command( async ()=> await OnLoginClicked());
+            UnloginCommand = new Command(async () => await UnregisteredClicked());
+            RegistrationCommand = new Command(async ()=> await OnRegistrationClicked());
         }
 
-        private async void OnLoginClicked(object obj)
+        private async Task OnLoginClicked()
         {
             if (!ValidateInput())
-            {
                 return;
-            }
 
             try
             {
-
                 IsBusy = true;
 
                 if (await UserStore.LoginAsync(Login, Password))
@@ -91,7 +94,7 @@ namespace NeighborHelpMobileClient.ViewModels
             }
         }
 
-        private async void OnRegistrationClicked(object o)
+        private async Task OnRegistrationClicked()
         {
             try
             {
@@ -101,7 +104,19 @@ namespace NeighborHelpMobileClient.ViewModels
             {
                 Debug.Fail(e.Message);
             }
+        }
 
+        private async Task UnregisteredClicked()
+        {
+            try
+            {
+                UserStore.Unlogin();
+                IsLogined = false;
+            }
+            catch (Exception e)
+            {
+                Debug.Fail(e.Message);
+            }
         }
 
         private bool ValidateInput()

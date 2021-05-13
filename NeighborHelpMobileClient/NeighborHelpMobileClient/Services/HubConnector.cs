@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using NeighborHelpMobileClient.Properties;
 using NeighborHelpMobileClient.Utils;
+using NeighborHelpModels.ControllersModel;
 
 namespace NeighborHelpMobileClient.Services
 {
@@ -13,11 +14,22 @@ namespace NeighborHelpMobileClient.Services
     {
         #region Fields
 
+        private bool isStoppedManually = false;
+        private int reconnectionTime = 5000;
+
         private HubConnection hubConnection;
+
+        private IConnectorProvider ConnectionProvider = DependencyService.Get<IConnectorProvider>();
+
+        public bool ShowSystemMessage = true;
+
+        public bool EnableReconnecting = true;
 
         public Action<string, string> NewMessageAction;
 
-        private IConnectorProvider ConnectionProvider = DependencyService.Get<IConnectorProvider>();
+        public Action<string> UpdateUserAction;
+
+        public Action<bool> UpdateConnectedStateAction;
 
         #endregion Fields
 
@@ -29,7 +41,21 @@ namespace NeighborHelpMobileClient.Services
 
         private string AuthorizationToken => ConnectionProvider.GetToken()?.Token;
 
+        private bool isConnected;// hubConnection?.State == HubConnectionState.Connected;
+        private bool IsConnected 
+        {
+           get  => isConnected;
+            set
+            {
+                isConnected = value;
+                UpdateConnectedStateAction?.Invoke(value);
+            }
+        }
+
         #endregion Properties
+
+
+        #region Constructor
 
         public HubConnector(double requestTimeout = DefaultSettings.RequestTimeout)
         {
@@ -38,36 +64,117 @@ namespace NeighborHelpMobileClient.Services
             hubConnection = new HubConnectionBuilder()
                 .WithUrl(fullChatPath, options =>
                 {
-                    options.AccessTokenProvider = () => Task.FromResult(AuthorizationToken);
+                    options.AccessTokenProvider = () => Task.Run(() => AuthorizationToken);
                     options.CloseTimeout = TimeSpan.FromSeconds(requestTimeout);
                     options.HttpMessageHandlerFactory = _ => SslSertificateValidator.BuildHttpClientHandler();
                 })
                 .Build();
 
-            hubConnection.On<string, string>(ChatHubConsts.ReceiveClientsMesage, (message, user) =>
-            {
-                SendLocalMessage(user, message);
-            });
+            hubConnection.On<string, string>(ChatHubConsts.ReceiveClientsMesage,
+                (message, user) => SendLocalMessage(user, message));
 
-            hubConnection.On<string>(ChatHubConsts.NotifyClients, (message) =>
-            {
-                SendLocalMessage(string.Empty, message);
-            });
+            hubConnection.On<string>(ChatHubConsts.NotifyClients,
+                (message) => SendLocalSystemMessage(message));
+
+            hubConnection.Closed += async (error) => await OnConnectionClosed(error);
+
+            ConnectionProvider.AddUpdateTokenCallback(OnNewUserLogin);
+        }
+
+        #endregion Constructor
+
+        #region Public Methods
+        public async Task SendMessageToServer(string message)
+        {
+            await Connection.InvokeAsync(ChatHubConsts.SendMessage, message);
         }
 
         public async Task Start()
         {
-            await Connection.StartAsync();
+            isStoppedManually = false;
+
+            if (IsConnected)
+                return;
+            try
+            {
+                await hubConnection.StartAsync();
+                IsConnected = true;
+
+                SendLocalSystemMessage("Вы вошли в чат...");
+            }
+            catch (Exception ex)
+            {
+                SendLocalSystemMessage($"Ошибка подключения: {ex.Message}");
+            }
         }
 
         public async Task Stop()
         {
-            await Connection.StopAsync();
+            isStoppedManually = true;
+
+            if (!IsConnected)
+                return;
+
+            await hubConnection.StopAsync();
+            IsConnected = false;
+            SendLocalSystemMessage("Вы покинули чат...");
         }
 
-        void SendLocalMessage(string user, string message)
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void SendLocalMessage(string user, string message)
         {
             NewMessageAction?.Invoke(user, message);
         }
+
+        private void SendLocalSystemMessage(string message)
+        {
+            if (ShowSystemMessage)
+            {
+                NewMessageAction?.Invoke(string.Empty, message);
+            }
+        }
+
+        //private void UpdateConnectionState()
+        //{
+        //    UpdateConnectedStateAction?.Invoke(IsConnected);
+        //}
+
+        private async Task OnConnectionClosed(Exception exc)
+        {
+            SendLocalSystemMessage("Подключение закрыто...");
+            IsConnected = false;
+            if (EnableReconnecting && !isStoppedManually)
+            {
+                await Task.Delay(reconnectionTime);
+                await Start();
+            }
+        }
+
+        private void OnNewUserLogin(AuthentificateToken token)
+        {
+            UpdateUser(token);
+        }
+
+        private async Task UpdateUser(AuthentificateToken token)
+        {
+            bool previousState = IsConnected;
+
+            if (IsConnected)
+                await Stop();
+
+            string userId = token?.UserId;
+            UpdateUserAction?.Invoke(userId);
+            bool isUserNotEmpty = !string.IsNullOrWhiteSpace(userId);
+
+            if (isUserNotEmpty && previousState)
+            {
+                await Start();
+            }
+        }
+
+        #endregion Private message
     }
 }

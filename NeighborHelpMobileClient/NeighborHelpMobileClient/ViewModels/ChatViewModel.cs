@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using NeighborHelpMobileClient.Models;
+﻿using NeighborHelpMobileClient.Models;
 using System;
 using System.Collections.ObjectModel;
-using NeighborHelpAPI.Consts;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using NeighborHelpMobileClient.Services;
@@ -11,7 +9,13 @@ namespace NeighborHelpMobileClient.ViewModels
 {
     public class ChatViewModel : BaseViewModel
     {
+        #region Fields
+
         HubConnector hubConnector;
+
+        #endregion Fields
+
+        #region Properties
 
         private string message;
         public string Message
@@ -33,61 +37,52 @@ namespace NeighborHelpMobileClient.ViewModels
         public Command SendMessageCommand => sendMessage
             ?? (sendMessage = new Command(async ()=> await SendMessageAsync(), () => IsConnected));
 
+        #endregion Properties
+
+        #region Constructor
+
         public ChatViewModel()
         {
             hubConnector = new HubConnector()
             {
-                NewMessageAction = (user, message) => SendLocalMessage(user, message)
+                NewMessageAction = (user, message) => SendLocalMessage(user, message),
+                UpdateUserAction = (userId) => OnNewUserLogin(userId),
+                UpdateConnectedStateAction = (value)=> IsConnected=value,
+                ShowSystemMessage = true,
+                EnableReconnecting = true
             };
 
             Messages = new ObservableCollection<MessageData>();
             IsBusy = false;
             IsConnected = false;
-
-            hubConnector.Connection.Closed += async (error) =>
-            {
-                SendLocalMessage(string.Empty, "Подключение закрыто...");
-                IsConnected = false;
-                await Task.Delay(5000);
-                await Connect();
-            };
         }
-        // подключение к чату
+
+        #endregion Constructor
+
+        #region Public Methods
+
         public async Task Connect()
         {
-            if (IsConnected)
-                return;
-            try
-            {
-                await hubConnector.Connection.StartAsync();
-                SendLocalMessage(string.Empty, "Вы вошли в чат...");
-
-                IsConnected = true;
-            }
-            catch (Exception ex)
-            {
-                SendLocalMessage(string.Empty, $"Ошибка подключения: {ex.Message}");
-            }
+            await hubConnector.Start();             
         }
 
-        // Отключение от чата
         public async Task Disconnect()
         {
-            if (!IsConnected)
-                return;
-
-            await hubConnector.Connection.StopAsync();
-            IsConnected = false;
-            SendLocalMessage(string.Empty, "Вы покинули чат...");
+            await hubConnector.Stop();
         }
 
-        // Отправка сообщения
-        async Task SendMessageAsync()
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private async Task SendMessageAsync()
         {
+            if (string.IsNullOrWhiteSpace(Message))
+                return;
             try
             {
                 IsBusy = true;
-                await hubConnector.Connection.InvokeAsync(ChatHubConsts.SendMessage, Message);
+                await hubConnector.SendMessageToServer(Message);
                 Message = string.Empty;
             }
             catch (Exception ex)
@@ -99,7 +94,12 @@ namespace NeighborHelpMobileClient.ViewModels
                 IsBusy = false;
             }
         }
-        // Добавление сообщения
+
+        private void OnNewUserLogin(string userId)
+        {
+            Messages.Clear();
+        }
+
         private void SendLocalMessage(string user, string message)
         {
             Messages.Insert(0, new MessageData
@@ -108,5 +108,7 @@ namespace NeighborHelpMobileClient.ViewModels
                 User = user
             });
         }
+
+        #endregion Private Methods
     }
 }
